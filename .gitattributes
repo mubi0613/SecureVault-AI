@@ -1,0 +1,2 @@
+fonts/dejavu-sans/*.ttf filter=lfs diff=lfs merge=lfs -text
+fonts/dejavu-sans/*.pkl filter=lfs diff=lfs merge=lfs -text

@@ -1,0 +1,11 @@
+streamlit>=1.42.0
+cryptography
+textblob
+fpdf2
+python-docx
+faiss-cpu
+numpy
+sentence-transformers
+google-genai
+python-dotenv
+nltk

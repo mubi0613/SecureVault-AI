@@ -1,0 +1,16 @@
+# Local Vault Data 
+notes.json
+vault_config.json
+usage_stats.json
+feedback_log.json
+.env
+
+# Python Environment
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# Streamlit logs
+.streamlit/
