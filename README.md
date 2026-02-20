@@ -2,7 +2,7 @@
 title: SecureVault AI
 emoji: 🔐
 colorFrom: blue
-colorTo: black
+colorTo: gray
 sdk: streamlit
 sdk_version: 1.42.0
 app_file: main.py
