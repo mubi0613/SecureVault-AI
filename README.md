@@ -1,3 +1,14 @@
+---
+title: SecureVault AI
+emoji: 🔐
+colorFrom: blue
+colorTo: black
+sdk: streamlit
+sdk_version: 1.42.0
+app_file: main.py
+pinned: false
+---
+
 # 🛡️ SecureVault AI: Privacy-First RAG Knowledge Base
 
 A production-grade, secure note-taking application that integrates **Retrieval-Augmented Generation (RAG)** with **Zero-Knowledge Encryption**. Built for users who need AI-powered insights without sacrificing data privacy.
