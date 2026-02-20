@@ -16,5 +16,3 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: git push --force https://mubi0613:$HF_TOKEN@huggingface.co/spaces/mubi0613/SecureVault-AI main
-
-        ----------------------------------------------------------------------------------------------------------------
