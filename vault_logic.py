@@ -170,9 +170,13 @@ def create_pdf(title, content):
         pdf.multi_cell(0, 10, content)
         
         # Output as bytes
-        return pdf.output(dest='S')
+        # Get PDF as bytes
+        pdf_bytes = pdf.output(dest='S')
+        return pdf_bytes  # Return bytes directly
     except Exception as e:
-        return f"PDF Error: {str(e)}".encode('utf-8')
+        # Return error as bytes
+        error_msg = f"PDF Error: {str(e)}"
+        return error_msg.encode('utf-8')
     
 def create_docx(title, content):
     doc = Document()
