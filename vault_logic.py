@@ -145,37 +145,33 @@ def ai_summarize_text(text):
 # The Logic Functions : These handle the actual file creation.
 def create_pdf(title, content):
     try:
+        # 1. THE CLEANER: This removes long dashes, emojis, and special bullets
+        # It replaces them with nothing or a standard space so the PDF doesn't crash
+        clean_title = title.encode("ascii", "ignore").decode("ascii")
+        clean_content = content.encode("ascii", "ignore").decode("ascii")
+
         pdf = FPDF()
         pdf.add_page()
-
-
-        # Updated to match your folder: fonts -> dejavu-sans -> DejaVuSans.ttf
-        font_path = os.path.join("fonts", "dejavu-sans", "DejaVuSans.ttf")
-       
-        if os.path.exists(font_path):
-            pdf.add_font('DejaVu', '', font_path, uni=True)
-            pdf.set_font('DejaVu', '', 14)
-        else:
-            # This is where it was falling back before, causing the "?" symbols
-            pdf.set_font("Arial", "B", 16)
-
-
-        # Write Title
-        pdf.multi_cell(0, 10, title)
+        
+        # 2. Use 'Arial' (the most stable font for Linux servers)
+        pdf.set_font("Arial", "B", 16)
+        pdf.multi_cell(0, 10, clean_title)
         pdf.ln(5)
-       
-        # Write Content
-        if os.path.exists(font_path):
-            pdf.set_font('DejaVu', '', 12)
-        else:
-            pdf.set_font("Arial", "", 12)
-           
-        pdf.multi_cell(0, 10, content)
-       
-        # Output as bytes
-        return pdf.output(dest='S').encode('latin-1')
+        
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, clean_content)
+        
+        # 3. Stream output as a string first
+        pdf_str = pdf.output(dest='S')
+        
+        # 4. Convert to BYTES (Streamlit buttons on HF MUST have bytes)
+        if isinstance(pdf_str, str):
+            return pdf_str.encode('latin-1')
+        return pdf_str
+
     except Exception as e:
-        return f"PDF Error: {str(e)}".encode('latin-1')
+        # If there is still an error, this will show the message instead of crashing
+        return f"ERROR: {str(e)}".encode('utf-8')
         
 def create_docx(title, content):
     doc = Document()
