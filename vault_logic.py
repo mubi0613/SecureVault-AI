@@ -148,53 +148,37 @@ def create_pdf(title, content):
         pdf = FPDF()
         pdf.add_page()
 
-        # Updated to match your folder: fonts -> dejavu-sans -> DejaVuSans.ttf
-        font_path = os.path.join("fonts", "dejavu-sans", "DejaVuSans.ttf")
+        # Use simple fonts to avoid issues
+        pdf.set_font("helvetica", "B", 16)
         
-        if os.path.exists(font_path):
-            pdf.add_font('DejaVu', '', font_path, uni=True)
-            pdf.set_font('DejaVu', '', 14)
-        else:
-            pdf.set_font("Arial", "B", 16)
-
-        # Write Title
-        # Handle potential Unicode issues in title
-        try:
-            pdf.multi_cell(0, 10, title)
-        except:
-            # If title has Unicode issues, clean it
-            clean_title = title.encode('ascii', 'ignore').decode('ascii')
-            pdf.multi_cell(0, 10, clean_title)
+        # Clean the title - remove any problematic characters
+        clean_title = title.encode('ascii', 'ignore').decode('ascii')
+        pdf.multi_cell(0, 10, clean_title)
         pdf.ln(5)
         
-        # Write Content
-        if os.path.exists(font_path):
-            pdf.set_font('DejaVu', '', 12)
+        # Clean the content - remove any problematic characters
+        pdf.set_font("helvetica", "", 12)
+        clean_content = content.encode('ascii', 'ignore').decode('ascii')
+        pdf.multi_cell(0, 10, clean_content)
+        
+        # Get output - it might be string or bytes depending on version
+        output = pdf.output(dest='S')
+        
+        # Convert to bytes if it's a string
+        if isinstance(output, str):
+            pdf_bytes = output.encode('latin-1')
         else:
-            pdf.set_font("helvetica", "", 12)
-        
-        # Handle potential Unicode issues in content
-        try:
-            pdf.multi_cell(0, 10, content)
-        except:
-            # If content has Unicode issues, clean it
-            clean_content = content.encode('ascii', 'ignore').decode('ascii')
-            pdf.multi_cell(0, 10, clean_content)
-        
-        # Output as bytes
-        pdf_bytes = pdf.output(dest='S')
-        
-        # Verify it's a valid PDF (starts with %PDF)
+            pdf_bytes = output
+            
+        # Verify it's a valid PDF
         if pdf_bytes and pdf_bytes.startswith(b'%PDF'):
             return pdf_bytes
         else:
-            # If not valid PDF, return error
-            return b"PDF_ERROR: Generated PDF is invalid"
+            return b"ERROR: Invalid PDF"
             
     except Exception as e:
-        # Return error as bytes with consistent prefix
-        error_msg = f"PDF_ERROR: {str(e)}"
-        return error_msg.encode('utf-8')
+        print(f"PDF Error: {str(e)}")  # This will show in Hugging Face logs
+        return b"ERROR: " + str(e).encode('utf-8')
         
 def create_docx(title, content):
     doc = Document()
