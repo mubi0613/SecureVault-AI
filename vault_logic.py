@@ -170,7 +170,7 @@ def create_pdf(title, content):
         pdf.multi_cell(0, 10, content)
         
         # Output as bytes
-        return pdf.output(dest='S').encode('utf-8')
+        return pdf.output(dest='S')
     except Exception as e:
         return f"PDF Error: {str(e)}".encode('utf-8')
     
