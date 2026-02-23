@@ -262,14 +262,31 @@ for idx, note in enumerate(filtered):
             st.divider()
             p_col, d_col = st.columns(2)
             with p_col:
-                
                 pdf_bytes = vl.create_pdf(note['title'], display_content)
-                # Check if pdf_bytes is an error message or actual PDF
-                if isinstance(pdf_bytes, bytes) and not pdf_bytes.startswith(b'PDF Error'):
-
-                    st.download_button("📄 Download PDF", data=pdf_bytes, file_name=f"{note['title']}.pdf", key=f"pdf_{note['id']}", use_container_width=True, mime="application/pdf")
+    
+                # Better error checking
+                if isinstance(pdf_bytes, bytes):
+                    # Check if it's a valid PDF (starts with %PDF) and not an error message
+                    if pdf_bytes.startswith(b'%PDF'):
+                        st.download_button(
+                            "📄 Download PDF", 
+                            data=pdf_bytes, 
+                            file_name=f"{note['title']}.pdf", 
+                            key=f"pdf_{note['id']}", 
+                            use_container_width=True, 
+                            mime="application/pdf"
+                        )
+                    elif pdf_bytes.startswith(b'PDF_ERROR'):
+                        # Show the actual error message
+                        error_text = pdf_bytes.decode('utf-8').replace('PDF_ERROR:', '').strip()
+                        st.error(f"PDF failed: {error_text}")
+                    else:
+                        # Unknown bytes response
+                        st.error("PDF generation failed - invalid format")
                 else:
-                    st.error("PDF generation failed")
+                    st.error("PDF generation failed - unexpected response")
+
+        
             with d_col:
                 docx_bytes = vl.create_docx(note['title'], display_content)
                 st.download_button("📝 Download DOCX", data=docx_bytes, file_name=f"{note['title']}.docx", key=f"docx_{note['id']}", use_container_width=True)
