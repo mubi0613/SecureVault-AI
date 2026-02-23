@@ -145,40 +145,33 @@ def ai_summarize_text(text):
 # The Logic Functions : These handle the actual file creation.
 def create_pdf(title, content):
     try:
+        # 1. Force everything to standard strings to avoid hidden Unicode characters
+        # We use 'ignore' here because Hugging Face Linux lacks the symbols
+        safe_title = str(title).encode('ascii', 'ignore').decode('ascii')
+        safe_content = str(content).encode('ascii', 'ignore').decode('ascii')
+
         pdf = FPDF()
         pdf.add_page()
-
-        # Use simple fonts to avoid issues
-        pdf.set_font("helvetica", "B", 16)
         
-        # Clean the title - remove any problematic characters
-        clean_title = title.encode('ascii', 'ignore').decode('ascii')
-        pdf.multi_cell(0, 10, clean_title)
+        # 2. Use 'Arial' instead of 'Helvetica' (more stable on Linux)
+        pdf.set_font("Arial", "B", 16)
+        pdf.cell(0, 10, safe_title, ln=True)
         pdf.ln(5)
         
-        # Clean the content - remove any problematic characters
-        pdf.set_font("helvetica", "", 12)
-        clean_content = content.encode('ascii', 'ignore').decode('ascii')
-        pdf.multi_cell(0, 10, clean_content)
+        pdf.set_font("Arial", size=12)
+        pdf.multi_cell(0, 10, safe_content)
         
-        # Get output - it might be string or bytes depending on version
-        output = pdf.output(dest='S')
+        # 3. USE A BUFFER (The most important part for Hugging Face)
+        # Instead of 'S', we get the string and encode it to bytes manually
+        pdf_str = pdf.output(dest='S')
         
-        # Convert to bytes if it's a string
-        if isinstance(output, str):
-            pdf_bytes = output.encode('latin-1')
-        else:
-            pdf_bytes = output
-            
-        # Verify it's a valid PDF
-        if pdf_bytes and pdf_bytes.startswith(b'%PDF'):
-            return pdf_bytes
-        else:
-            return b"ERROR: Invalid PDF"
-            
+        if isinstance(pdf_str, str):
+            return pdf_str.encode('latin-1')
+        return pdf_str
+
     except Exception as e:
-        print(f"PDF Error: {str(e)}")  # This will show in Hugging Face logs
-        return b"ERROR: " + str(e).encode('utf-8')
+        # If it still fails, this will tell us EXACTLY why in the HF logs
+        return f"ERROR: {str(e)}".encode('utf-8')
         
 def create_docx(title, content):
     doc = Document()
