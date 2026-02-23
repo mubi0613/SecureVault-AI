@@ -155,7 +155,6 @@ def create_pdf(title, content):
             pdf.add_font('DejaVu', '', font_path, uni=True)
             pdf.set_font('DejaVu', '', 14)
         else:
-            # This is where it was falling back before, causing the "?" symbols
             pdf.set_font("Arial", "B", 16)
 
         # Write Title
@@ -166,14 +165,14 @@ def create_pdf(title, content):
         if os.path.exists(font_path):
             pdf.set_font('DejaVu', '', 12)
         else:
-            pdf.set_font("Arial", "", 12)
+            pdf.set_font("helvetica", "", 12)
             
         pdf.multi_cell(0, 10, content)
         
         # Output as bytes
-        return pdf.output(dest='S').encode('latin-1')
+        return pdf.output(dest='S').encode('utf-8')
     except Exception as e:
-        return f"PDF Error: {str(e)}".encode('latin-1')
+        return f"PDF Error: {str(e)}".encode('utf-8')
     
 def create_docx(title, content):
     doc = Document()
