@@ -158,7 +158,13 @@ def create_pdf(title, content):
             pdf.set_font("Arial", "B", 16)
 
         # Write Title
-        pdf.multi_cell(0, 10, title)
+        # Handle potential Unicode issues in title
+        try:
+            pdf.multi_cell(0, 10, title)
+        except:
+            # If title has Unicode issues, clean it
+            clean_title = title.encode('ascii', 'ignore').decode('ascii')
+            pdf.multi_cell(0, 10, clean_title)
         pdf.ln(5)
         
         # Write Content
@@ -166,18 +172,30 @@ def create_pdf(title, content):
             pdf.set_font('DejaVu', '', 12)
         else:
             pdf.set_font("helvetica", "", 12)
-            
-        pdf.multi_cell(0, 10, content)
+        
+        # Handle potential Unicode issues in content
+        try:
+            pdf.multi_cell(0, 10, content)
+        except:
+            # If content has Unicode issues, clean it
+            clean_content = content.encode('ascii', 'ignore').decode('ascii')
+            pdf.multi_cell(0, 10, clean_content)
         
         # Output as bytes
-        # Get PDF as bytes
         pdf_bytes = pdf.output(dest='S')
-        return pdf_bytes  # Return bytes directly
+        
+        # Verify it's a valid PDF (starts with %PDF)
+        if pdf_bytes and pdf_bytes.startswith(b'%PDF'):
+            return pdf_bytes
+        else:
+            # If not valid PDF, return error
+            return b"PDF_ERROR: Generated PDF is invalid"
+            
     except Exception as e:
-        # Return error as bytes
-        error_msg = f"PDF Error: {str(e)}"
+        # Return error as bytes with consistent prefix
+        error_msg = f"PDF_ERROR: {str(e)}"
         return error_msg.encode('utf-8')
-    
+        
 def create_docx(title, content):
     doc = Document()
     doc.add_heading(title, 0)
