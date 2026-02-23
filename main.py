@@ -262,8 +262,14 @@ for idx, note in enumerate(filtered):
             st.divider()
             p_col, d_col = st.columns(2)
             with p_col:
+                
                 pdf_bytes = vl.create_pdf(note['title'], display_content)
-                st.download_button("📄 Download PDF", data=pdf_bytes, file_name=f"{note['title']}.pdf", key=f"pdf_{note['id']}", use_container_width=True)
+                # Check if pdf_bytes is an error message or actual PDF
+                if isinstance(pdf_bytes, bytes) and not pdf_bytes.startswith(b'PDF Error'):
+
+                    st.download_button("📄 Download PDF", data=pdf_bytes, file_name=f"{note['title']}.pdf", key=f"pdf_{note['id']}", use_container_width=True, mime="application/pdf")
+                else:
+                    st.error("PDF generation failed")
             with d_col:
                 docx_bytes = vl.create_docx(note['title'], display_content)
                 st.download_button("📝 Download DOCX", data=docx_bytes, file_name=f"{note['title']}.docx", key=f"docx_{note['id']}", use_container_width=True)
