@@ -145,33 +145,37 @@ def ai_summarize_text(text):
 # The Logic Functions : These handle the actual file creation.
 def create_pdf(title, content):
     try:
-        # 1. Force everything to standard strings to avoid hidden Unicode characters
-        # We use 'ignore' here because Hugging Face Linux lacks the symbols
-        safe_title = str(title).encode('ascii', 'ignore').decode('ascii')
-        safe_content = str(content).encode('ascii', 'ignore').decode('ascii')
-
         pdf = FPDF()
         pdf.add_page()
-        
-        # 2. Use 'Arial' instead of 'Helvetica' (more stable on Linux)
-        pdf.set_font("Arial", "B", 16)
-        pdf.cell(0, 10, safe_title, ln=True)
-        pdf.ln(5)
-        
-        pdf.set_font("Arial", size=12)
-        pdf.multi_cell(0, 10, safe_content)
-        
-        # 3. USE A BUFFER (The most important part for Hugging Face)
-        # Instead of 'S', we get the string and encode it to bytes manually
-        pdf_str = pdf.output(dest='S')
-        
-        if isinstance(pdf_str, str):
-            return pdf_str.encode('latin-1')
-        return pdf_str
 
+
+        # Updated to match your folder: fonts -> dejavu-sans -> DejaVuSans.ttf
+        font_path = os.path.join("fonts", "dejavu-sans", "DejaVuSans.ttf")
+       
+        if os.path.exists(font_path):
+            pdf.add_font('DejaVu', '', font_path, uni=True)
+            pdf.set_font('DejaVu', '', 14)
+        else:
+            # This is where it was falling back before, causing the "?" symbols
+            pdf.set_font("Arial", "B", 16)
+
+
+        # Write Title
+        pdf.multi_cell(0, 10, title)
+        pdf.ln(5)
+       
+        # Write Content
+        if os.path.exists(font_path):
+            pdf.set_font('DejaVu', '', 12)
+        else:
+            pdf.set_font("Arial", "", 12)
+           
+        pdf.multi_cell(0, 10, content)
+       
+        # Output as bytes
+        return pdf.output(dest='S').encode('latin-1')
     except Exception as e:
-        # If it still fails, this will tell us EXACTLY why in the HF logs
-        return f"ERROR: {str(e)}".encode('utf-8')
+        return f"PDF Error: {str(e)}".encode('latin-1')
         
 def create_docx(title, content):
     doc = Document()
