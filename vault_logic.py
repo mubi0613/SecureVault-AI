@@ -133,7 +133,7 @@ def ai_summarize_text(text):
     sentences = [str(s) for s in blob.sentences]
     
     if len(sentences) > 2:
-        summary = "AI Summary:\n" + "\n".join([f"• {s}" for s in sentences[:2]])
+        summary = "AI Summary:\n" + "\n".join([f"- {s}" for s in sentences[:2]])
         
         # NEW: Log the usage here!
         track_usage(text, type="input") 
