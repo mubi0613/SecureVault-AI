@@ -263,29 +263,24 @@ for idx, note in enumerate(filtered):
             p_col, d_col = st.columns(2)
             with p_col:
                 pdf_bytes = vl.create_pdf(note['title'], display_content)
-    
-                # Better error checking
-                if isinstance(pdf_bytes, bytes):
-                    # Check if it's a valid PDF (starts with %PDF) and not an error message
-                    if pdf_bytes.startswith(b'%PDF'):
-                        st.download_button(
-                            "📄 Download PDF", 
-                            data=pdf_bytes, 
-                            file_name=f"{note['title']}.pdf", 
-                            key=f"pdf_{note['id']}", 
-                            use_container_width=True, 
-                            mime="application/pdf"
-                        )
-                    elif pdf_bytes.startswith(b'PDF_ERROR'):
-                        # Show the actual error message
-                        error_text = pdf_bytes.decode('utf-8').replace('PDF_ERROR:', '').strip()
-                        st.error(f"PDF failed: {error_text}")
-                    else:
-                        # Unknown bytes response
-                        st.error("PDF generation failed - invalid format")
+                
+                # Check if it's a valid PDF
+                if isinstance(pdf_bytes, bytes) and pdf_bytes.startswith(b'%PDF'):
+                    st.download_button(
+                        "📄 Download PDF", 
+                        data=pdf_bytes, 
+                        file_name=f"{note['title']}.pdf", 
+                        key=f"pdf_{note['id']}", 
+                        use_container_width=True, 
+                        mime="application/pdf"
+                    )
                 else:
-                    st.error("PDF generation failed - unexpected response")
-
+                    # Show the actual error
+                    if isinstance(pdf_bytes, bytes) and pdf_bytes.startswith(b'ERROR:'):
+                        error_msg = pdf_bytes.decode('utf-8')
+                        st.error(f"PDF failed: {error_msg}")
+                    else:
+                        st.error("PDF generation failed")
         
             with d_col:
                 docx_bytes = vl.create_docx(note['title'], display_content)
