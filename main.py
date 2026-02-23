@@ -263,7 +263,7 @@ for idx, note in enumerate(filtered):
             p_col, d_col = st.columns(2)
             with p_col:
                 pdf_bytes = vl.create_pdf(note['title'], display_content)
-                st.download_button("Download PDF", data=pdf_bytes, file_name=f"{note['title']}.pdf", key=f"pdf_{note['id']}",icon="📄", use_container_width=True)
+                st.download_button("📄 Download PDF", data=pdf_bytes, file_name=f"{note['title']}.pdf", key=f"pdf_{note['id']}", use_container_width=True)
         
             with d_col:
                 docx_bytes = vl.create_docx(note['title'], display_content)
